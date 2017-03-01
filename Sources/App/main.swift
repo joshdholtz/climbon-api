@@ -4,7 +4,7 @@ import VaporPostgreSQL
 let drop = Droplet()
 
 // Adding preparations for models
-drop.preparations += Post.self
+drop.preparations += Route.self
 
 // Adding database provider
 try drop.addProvider(VaporPostgreSQL.Provider.self)
@@ -15,6 +15,20 @@ drop.get { req in
     ])
 }
 
-drop.register(path: "posts", controller: PostController.self)
+drop.resource("api/routes", RouteController())
 
 drop.run()
+
+extension NodeBacked {
+	func exists<T: NodeInitializable>(_ key: String, _ exists: (T?) -> ()) throws {
+		guard let _ = self[key] else { return }
+		
+		if let value: T = try extract(key) {
+			exists(value)
+		} else {
+			exists(nil)
+		}
+		
+		return
+	}
+}
