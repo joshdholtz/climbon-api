@@ -15,6 +15,6 @@ drop.get { req in
     ])
 }
 
-drop.resource("posts", PostController())
+drop.register(path: "posts", controller: PostController.self)
 
 drop.run()
