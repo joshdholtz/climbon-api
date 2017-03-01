@@ -16,38 +16,27 @@ final class RouteController: ResourceRepresentable {
         return route
     }
 
-//    func delete(request: Request, post: Post) throws -> ResponseRepresentable {
-//        try post.delete()
-//        return JSON([:])
-//    }
-//
-//    func clear(request: Request) throws -> ResponseRepresentable {
-//        try Post.query().delete()
-//        return JSON([])
-//    }
-//
+    func delete(request: Request, route: Route) throws -> ResponseRepresentable {
+        try route.delete()
+        return JSON([:])
+    }
+
     func update(request: Request, route: Route) throws -> ResponseRepresentable {
 		var route = route
 		try route.patch(node: request.json?.makeNode())
 		try route.save()
         return route
     }
-//
-//    func replace(request: Request, post: Post) throws -> ResponseRepresentable {
-//        print("in replace")
-//        try post.delete()
-//        return try create(request: request)
-//    }
 
     func makeResource() -> Resource<Route> {
         return Resource(
             index: index,
             store: create,
             show: show,
-//            replace: replace,
-            modify: update
-//            destroy: delete,
-//            clear: clear
+            replace: nil,
+            modify: update,
+            destroy: delete,
+            clear: nil
         )
     }
 }
