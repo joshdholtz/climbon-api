@@ -1,10 +1,17 @@
 import Vapor
 import VaporPostgreSQL
+import Sessions
 
 let drop = Droplet()
 
 // Adding preparations for models
 drop.preparations += Route.self
+drop.preparations += User.self
+
+// Sessions
+let memory = MemorySessions()
+let sessions = SessionsMiddleware(sessions: memory)
+drop.middleware.append(sessions)
 
 // Adding database provider
 try drop.addProvider(VaporPostgreSQL.Provider.self)
@@ -16,19 +23,10 @@ drop.get { req in
 }
 
 drop.resource("api/routes", RouteController())
+drop.resource("api/users", UserController())
+
+let sessionsControllers = SessionController()
+drop.post("api/login", handler: sessionsControllers.login)
+drop.get("api/current", handler: sessionsControllers.current)
 
 drop.run()
-
-extension NodeBacked {
-	func exists<T: NodeInitializable>(_ key: String, _ exists: (T?) -> ()) throws {
-		guard let _ = self[key] else { return }
-		
-		if let value: T = try extract(key) {
-			exists(value)
-		} else {
-			exists(nil)
-		}
-		
-		return
-	}
-}

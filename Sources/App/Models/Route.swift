@@ -10,10 +10,6 @@ final class Route: Model {
 	var setter: String?
 	var type: String?
 	
-//	init(content: String) {
-//		self.content = content
-//	}
-	
 	init(node: Node, in context: Context) throws {
 		id = try node.extract("id")
 		name = try node.extract("name")
