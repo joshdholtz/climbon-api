@@ -59,13 +59,12 @@ extension User: Auth.User {
 		var user: User?
 		
 		switch credentials {
-		case let up as UsernamePasswordSession:
+		case let id as Identifier:
+			user = try User.find(id.id)
+		case let up as UsernamePassword:
 			if let maybeUser = try User.query().filter("username", up.username).first(),
-				let userID = maybeUser.id,
 				try BCrypt.verify(password: up.password, matchesHash: maybeUser.password) {
 				user = maybeUser
-				
-				try up.request.session().currentUser = maybeUser
 			}
 		default:
 			throw Abort.custom(status: .badRequest, message: "Invalid credentials.")
@@ -82,7 +81,9 @@ extension User: Auth.User {
 		let user: User?
 		
 		switch credentials {
-		case let up as UsernamePasswordSession:
+		case let id as Identifier:
+			user = try User.find(id.id)
+		case let up as UsernamePassword:
 			let password = BCrypt.hash(password: up.password)
 			user = User(username: up.username, password: password)
 		default:

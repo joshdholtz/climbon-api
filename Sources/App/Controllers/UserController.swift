@@ -39,20 +39,9 @@ final class UserController: ResourceRepresentable {
 	}
 }
 
-extension Request {
-	func usernamePassword() throws -> UsernamePasswordSession {
-		guard let json = json else { throw Abort.badRequest }
-		
-		guard let username: String = try json.extract("username"),
-			let password: String = try json.extract("password") else {
-				throw Abort.custom(status: .badRequest, message: "Invalid credentials")
-		}
-		
-		return UsernamePasswordSession(username: username, password: password, request: self)
-	}
-	
-	func user() throws -> User {
-		guard let json = json else { throw Abort.badRequest }
+extension UserController {
+	func user(_ request: Request) throws -> User {
+		guard let json = request.json else { throw Abort.badRequest }
 		return try User(node: json)
 	}
 }

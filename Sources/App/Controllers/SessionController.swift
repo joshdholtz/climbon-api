@@ -5,15 +5,17 @@ import Turnstile
 final class SessionController {
 	func login(request: Request) throws -> ResponseRepresentable {
 		let credentials = try request.usernamePassword()
-		guard let user = try User.authenticate(credentials: credentials) as? User else {
-			throw Abort.serverError
+		
+		try request.auth.login(credentials)
+		guard let user = request.user() else {
+			throw Abort.custom(status: .badRequest, message: "Invalid credentials")
 		}
 		
 		return user
 	}
 	
 	func current(request: Request) throws -> ResponseRepresentable {
-		guard let user = try request.session().currentUser else {
+		guard let user = request.user() else {
 			throw Abort.notFound
 		}
 		
