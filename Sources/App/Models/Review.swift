@@ -12,6 +12,9 @@ final class Review: Model {
 	var userId: Int
 	var routeId: Int
 	
+	var createdAt: Date!
+	var updatedAt: Date!
+	
 	init(node: JSON, userId: Int) throws {
 		id = try node.extract("id")
 		title = try node.extract("title")
@@ -32,6 +35,9 @@ final class Review: Model {
 		
 		userId = try node.extract("user_id")
 		routeId = try node.extract("route_id")
+		
+		createdAt = try node.extract("created_at")
+		updatedAt = try node.extract("updated_at")
 	}
 	
 	func validate() throws {
@@ -75,8 +81,19 @@ final class Review: Model {
 			"text": text,
 			"suggested_grade": suggestedGrade,
 			"user_id": userId,
-			"route_id": routeId
+			"route_id": routeId,
+			"created_at": createdAt,
+			"updated_at": updatedAt
 			])
+	}
+	
+	func willCreate() {
+		createdAt = Date()
+		updatedAt = Date()
+	}
+	
+	func willUpdate() {
+		updatedAt = Date()
 	}
 }
 
@@ -84,12 +101,15 @@ extension Review: Preparation {
 	static func prepare(_ database: Database) throws {
 		try database.create("reviews") { reviews in
 			reviews.id()
-			reviews.custom("title", type: "TEXT", optional: false, unique: false)
+			reviews.text("title", optional: false, unique: false)
 			reviews.int("rating", optional: false, unique: false)
-			reviews.custom("text", type: "TEXT", optional: true, unique: false)
-			reviews.custom("suggested_grade", type: "TEXT", optional: true, unique: false)
+			reviews.text("text", optional: true, unique: false)
+			reviews.text("suggested_grade", optional: true, unique: false)
 			reviews.parent(User.self, optional: false, unique: false)
 			reviews.parent(Route.self, optional: false, unique: false)
+			
+			reviews.timestamp("created_at", optional: false, unique: false)
+			reviews.timestamp("updated_at", optional: false, unique: false)
 		}
 	}
 	

@@ -12,6 +12,9 @@ final class Route: Model {
 	
 	var userId: Int
 	
+	var createdAt: Date!
+	var updatedAt: Date!
+	
 	init(node: JSON, userId: Int) throws {
 		id = try node.extract("id")
 		name = try node.extract("name")
@@ -19,6 +22,7 @@ final class Route: Model {
 		grade = try node.extract("grade")
 		setter = try node.extract("setter")
 		type = try node.extract("type")
+		
 		self.userId = userId
 	}
 	
@@ -29,7 +33,11 @@ final class Route: Model {
 		grade = try node.extract("grade")
 		setter = try node.extract("setter")
 		type = try node.extract("type")
+		
 		userId = try node.extract("user_id")
+		
+		createdAt = try node.extract("created_at")
+		updatedAt = try node.extract("updated_at")
 	}
 	
 	func patch(node: Node?) throws {
@@ -62,8 +70,19 @@ final class Route: Model {
 			"grade": grade,
 			"setter": setter,
 			"type": type,
-			"user_id": userId
+			"user_id": userId,
+			"created_at": createdAt,
+			"updated_at": updatedAt
 			])
+	}
+	
+	func willCreate() {
+		createdAt = Date()
+		updatedAt = Date()
+	}
+	
+	func willUpdate() {
+		updatedAt = Date()
 	}
 }
 
@@ -71,12 +90,15 @@ extension Route: Preparation {
 	static func prepare(_ database: Database) throws {
 		try database.create("routes") { routes in
 			routes.id()
-			routes.custom("name", type: "TEXT", optional: true, unique: false)
-			routes.custom("info", type: "TEXT", optional: true, unique: false)
-			routes.custom("grade", type: "TEXT", optional: true, unique: false)
-			routes.custom("setter", type: "TEXT", optional: true, unique: false)
-			routes.custom("type", type: "TEXT", optional: true, unique: false)
+			routes.text("name", optional: true, unique: false)
+			routes.text("info", optional: true, unique: false)
+			routes.text("grade", optional: true, unique: false)
+			routes.text("setter", optional: true, unique: false)
+			routes.text("type", optional: true, unique: false)
 			routes.parent(User.self, optional: true, unique: false)
+			
+			routes.timestamp("created_at", optional: false, unique: false)
+			routes.timestamp("updated_at", optional: false, unique: false)
 		}
 	}
 	

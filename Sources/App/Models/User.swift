@@ -6,12 +6,16 @@ import Fluent
 import BCrypt
 import Turnstile
 import Foundation
+import FluentPostgreSQL
 
 final class User: Model {
 	var id: Node?
 	var username: String
 	var password: String
 	var name: String?
+	
+	var createdAt: Date!
+	var updatedAt: Date!
 	
 	init(username: String, password: String) {
 		self.username = username
@@ -23,6 +27,9 @@ final class User: Model {
 		username = try node.extract("username")
 		password = try node.extract("password")
 		name = try node.extract("name")
+		
+		createdAt = try node.extract("created_at")
+		updatedAt = try node.extract("updated_at")
 	}
 	
 	func patch(node: Node?) throws {
@@ -40,7 +47,9 @@ final class User: Model {
 			"id": id,
 			"username": username,
 			"password": password,
-			"name": name
+			"name": name,
+			"created_at": createdAt,
+			"updated_at": updatedAt
 			])
 	}
 	
@@ -48,10 +57,20 @@ final class User: Model {
 		return try JSON(node: [
 			"id": id,
 			"username": username,
-			"name": name
+			"name": name,
+			"created_at": createdAt,
+			"updated_at": updatedAt
 			])
 	}
 
+	func willCreate() {
+		createdAt = Date()
+		updatedAt = Date()
+	}
+	
+	func willUpdate() {
+		updatedAt = Date()
+	}
 }
 
 extension User: Auth.User {
@@ -104,9 +123,12 @@ extension User: Preparation {
 	static func prepare(_ database: Database) throws {
 		try database.create("users") { users in
 			users.id()
-			users.custom("username", type: "TEXT", optional: false, unique: true)
-			users.custom("password", type: "TEXT", optional: false, unique: true)
-			users.custom("name", type: "TEXT", optional: true, unique: false)
+			users.text("username", optional: false, unique: true)
+			users.text("password", optional: false, unique: true)
+			users.text("name", optional: true, unique: false)
+			
+			users.timestamp("created_at", optional: false, unique: false)
+			users.timestamp("updated_at", optional: false, unique: false)
 		}
 	}
 	
