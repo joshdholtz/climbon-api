@@ -10,6 +10,18 @@ final class Route: Model {
 	var setter: String?
 	var type: String?
 	
+	var userId: Int
+	
+	init(node: JSON, userId: Int) throws {
+		id = try node.extract("id")
+		name = try node.extract("name")
+		info = try node.extract("info")
+		grade = try node.extract("grade")
+		setter = try node.extract("setter")
+		type = try node.extract("type")
+		self.userId = userId
+	}
+	
 	init(node: Node, in context: Context) throws {
 		id = try node.extract("id")
 		name = try node.extract("name")
@@ -17,6 +29,7 @@ final class Route: Model {
 		grade = try node.extract("grade")
 		setter = try node.extract("setter")
 		type = try node.extract("type")
+		userId = try node.extract("user_id")
 	}
 	
 	func patch(node: Node?) throws {
@@ -48,7 +61,8 @@ final class Route: Model {
 			"info": info,
 			"grade": grade,
 			"setter": setter,
-			"type": type
+			"type": type,
+			"user_id": userId
 			])
 	}
 }
@@ -62,6 +76,7 @@ extension Route: Preparation {
 			routes.custom("grade", type: "TEXT", optional: true, unique: false)
 			routes.custom("setter", type: "TEXT", optional: true, unique: false)
 			routes.custom("type", type: "TEXT", optional: true, unique: false)
+			routes.parent(User.self, optional: true, unique: false)
 		}
 	}
 	

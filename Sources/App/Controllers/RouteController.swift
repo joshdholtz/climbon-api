@@ -7,7 +7,11 @@ final class RouteController: ResourceRepresentable {
     }
 
     func create(request: Request) throws -> ResponseRepresentable {
-        var route = try request.route()
+		// Must be logged in
+		let (_, userId) = try request.protected()
+		
+		var route = try request.route(userId: userId)
+		route.userId = userId
         try route.save()
         return route
     }
@@ -17,11 +21,25 @@ final class RouteController: ResourceRepresentable {
     }
 
     func delete(request: Request, route: Route) throws -> ResponseRepresentable {
+		// TODO: This must be an admin/gym permission only (or have no activity)
+		
+		let (_, userId) = try request.protected()
+		guard route.userId == userId else {
+			throw Abort.custom(status: .forbidden, message: "Can only delete your own route")
+		}
+		
         try route.delete()
         return JSON([:])
     }
 
     func update(request: Request, route: Route) throws -> ResponseRepresentable {
+		// TODO: This must be an admin/gym permission only (or have no activity)
+		
+		let (_, userId) = try request.protected()
+		guard route.userId == userId else {
+			throw Abort.custom(status: .forbidden, message: "Can only update your own route")
+		}
+		
 		var route = route
 		try route.patch(node: request.json?.makeNode())
 		try route.save()
@@ -42,8 +60,8 @@ final class RouteController: ResourceRepresentable {
 }
 
 extension Request {
-	func route() throws -> Route {
+	func route(userId: Int) throws -> Route {
 		guard let json = json else { throw Abort.badRequest }
-		return try Route(node: json)
+		return try Route(node: json, userId: userId)
 	}
 }
