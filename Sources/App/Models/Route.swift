@@ -11,6 +11,7 @@ final class Route: Model {
 	var type: String?
 	
 	var userId: Int
+	var locationId: Int
 	
 	var createdAt: Date!
 	var updatedAt: Date!
@@ -24,6 +25,7 @@ final class Route: Model {
 		type = try node.extract("type")
 		
 		self.userId = userId
+		locationId = try node.extract("location_id")
 	}
 	
 	init(node: Node, in context: Context) throws {
@@ -35,9 +37,20 @@ final class Route: Model {
 		type = try node.extract("type")
 		
 		userId = try node.extract("user_id")
+		locationId = try node.extract("location_id")
 		
 		createdAt = try node.extract("created_at")
 		updatedAt = try node.extract("updated_at")
+	}
+	
+	func validate() throws {
+		if try User.find(userId) == nil {
+			throw Abort.custom(status: .badRequest, message: "Invalid user")
+		}
+		
+		if try Location.find(locationId) == nil {
+			throw Abort.custom(status: .badRequest, message: "Invalid location")
+		}
 	}
 	
 	func patch(node: Node?) throws {
@@ -71,6 +84,7 @@ final class Route: Model {
 			"setter": setter,
 			"type": type,
 			"user_id": userId,
+			"location_id": locationId,
 			"created_at": createdAt,
 			"updated_at": updatedAt
 			])
@@ -96,6 +110,7 @@ extension Route: Preparation {
 			routes.text("setter", optional: true, unique: false)
 			routes.text("type", optional: true, unique: false)
 			routes.parent(User.self, optional: true, unique: false)
+			routes.parent(Location.self, optional: true, unique: false)
 			
 			routes.timestamp("created_at", optional: false, unique: false)
 			routes.timestamp("updated_at", optional: false, unique: false)

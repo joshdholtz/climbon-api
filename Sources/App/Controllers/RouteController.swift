@@ -11,7 +11,7 @@ final class RouteController: ResourceRepresentable {
 		let (_, userId) = try request.protected()
 		
 		var route = try request.route(userId: userId)
-		route.userId = userId
+		try route.validate()
         try route.save()
         return route
     }

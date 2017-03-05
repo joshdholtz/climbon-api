@@ -6,8 +6,9 @@ import Sessions
 let drop = Droplet()
 
 // Adding preparations for models
-drop.preparations += Route.self
 drop.preparations += User.self
+drop.preparations += Location.self
+drop.preparations += Route.self
 drop.preparations += Review.self
 
 // Auth
@@ -28,6 +29,7 @@ drop.get { req in
     ])
 }
 
+drop.resource("api/locations", LocationController())
 drop.resource("api/reviews", ReviewController())
 drop.resource("api/routes", RouteController())
 drop.resource("api/users", UserController())
