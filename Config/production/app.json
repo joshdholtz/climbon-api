@@ -1,7 +1,3 @@
 {
-	"host": "$PSQL_HOST",
-	"user": "$PSQL_USERNAME",
-	"password": "$PSQL_PASSWORD",
-	"database": "$PSQL_DATABASE",
-	"port": "$PSQL_PORT"
+	
 }
