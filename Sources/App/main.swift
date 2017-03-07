@@ -6,10 +6,18 @@ import Sessions
 let drop = Droplet()
 
 // Adding preparations for models
-drop.preparations += User.self
-drop.preparations += Location.self
-drop.preparations += Route.self
-drop.preparations += Review.self
+//drop.preparations += User.self
+drop.preparations = [
+	Location.self,
+	Review.self,
+	Route.self,
+	User.self,
+	
+	Migration001CreateUser.self,
+	Migration002CreateLocation.self,
+	Migration003CreateRoute.self,
+	Migration004CreateReview.self
+]
 
 // Auth
 let auth = AuthMiddleware(user: User.self)

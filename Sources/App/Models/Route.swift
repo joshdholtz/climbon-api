@@ -102,19 +102,7 @@ final class Route: Model {
 
 extension Route: Preparation {
 	static func prepare(_ database: Database) throws {
-		try database.create("routes") { routes in
-			routes.id()
-			routes.text("name", optional: true, unique: false)
-			routes.text("info", optional: true, unique: false)
-			routes.text("grade", optional: true, unique: false)
-			routes.text("setter", optional: true, unique: false)
-			routes.text("type", optional: true, unique: false)
-			routes.parent(User.self, optional: true, unique: false)
-			routes.parent(Location.self, optional: true, unique: false)
-			
-			routes.timestamp("created_at", optional: false, unique: false)
-			routes.timestamp("updated_at", optional: false, unique: false)
-		}
+		
 	}
 	
 	static func revert(_ database: Database) throws {

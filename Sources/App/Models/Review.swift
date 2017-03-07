@@ -99,18 +99,7 @@ final class Review: Model {
 
 extension Review: Preparation {
 	static func prepare(_ database: Database) throws {
-		try database.create("reviews") { reviews in
-			reviews.id()
-			reviews.text("title", optional: false, unique: false)
-			reviews.int("rating", optional: false, unique: false)
-			reviews.text("text", optional: true, unique: false)
-			reviews.text("suggested_grade", optional: true, unique: false)
-			reviews.parent(User.self, optional: false, unique: false)
-			reviews.parent(Route.self, optional: false, unique: false)
-			
-			reviews.timestamp("created_at", optional: false, unique: false)
-			reviews.timestamp("updated_at", optional: false, unique: false)
-		}
+		
 	}
 	
 	static func revert(_ database: Database) throws {

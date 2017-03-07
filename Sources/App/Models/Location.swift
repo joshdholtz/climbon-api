@@ -115,21 +115,7 @@ final class Location: Model {
 
 extension Location: Preparation {
 	static func prepare(_ database: Database) throws {
-		try database.create("locations") { locations in
-			locations.id()
-			locations.text("name", optional: false, unique: false)
-			locations.text("address1", optional: true, unique: false)
-			locations.text("address2", optional: true, unique: false)
-			locations.text("city", optional: true, unique: false)
-			locations.text("state", optional: true, unique: false)
-			locations.text("zip", optional: true, unique: false)
-			locations.double("lat", optional: true, unique: false)
-			locations.double("lng", optional: true, unique: false)
-			locations.parent(User.self, optional: false, unique: false)
-			
-			locations.timestamp("created_at", optional: false, unique: false)
-			locations.timestamp("updated_at", optional: false, unique: false)
-		}
+		
 	}
 	
 	static func revert(_ database: Database) throws {

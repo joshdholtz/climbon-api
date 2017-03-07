@@ -121,15 +121,7 @@ extension User: Auth.User {
 
 extension User: Preparation {
 	static func prepare(_ database: Database) throws {
-		try database.create("users") { users in
-			users.id()
-			users.text("username", optional: false, unique: true)
-			users.text("password", optional: false, unique: true)
-			users.text("name", optional: true, unique: false)
-			
-			users.timestamp("created_at", optional: false, unique: false)
-			users.timestamp("updated_at", optional: false, unique: false)
-		}
+
 	}
 	
 	static func revert(_ database: Database) throws {
