@@ -23,4 +23,10 @@ final class SessionController {
 		
 		return user
 	}
+	
+	func logout(request: Request) throws -> ResponseRepresentable {
+		try request.auth.logout()
+		
+		return JSON([:])
+	}
 }
