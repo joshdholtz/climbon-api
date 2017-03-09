@@ -3,7 +3,7 @@ import HTTP
 
 final class LocationController: ResourceRepresentable {
 	func index(request: Request) throws -> ResponseRepresentable {
-		return try Route.all().makeNode().converted(to: JSON.self)
+		return try Location.all().makeNode().converted(to: JSON.self)
 	}
 	
 	func create(request: Request) throws -> ResponseRepresentable {

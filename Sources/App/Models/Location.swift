@@ -12,6 +12,7 @@ final class Location: Model {
 	var zip: String?
 	var lat: Double?
 	var lng: Double?
+	var website: String?
 	
 	var userId: Int
 	
@@ -28,6 +29,7 @@ final class Location: Model {
 		zip = try node.extract("zip")
 		lat = try node.extract("lat")
 		lng = try node.extract("lng")
+		website = try node.extract("website")
 		
 		self.userId = userId
 	}
@@ -42,6 +44,7 @@ final class Location: Model {
 		zip = try node.extract("zip")
 		lat = try node.extract("lat")
 		lng = try node.extract("lng")
+		website = try node.extract("website")
 		
 		userId = try node.extract("user_id")
 		
@@ -84,6 +87,9 @@ final class Location: Model {
 		try node.exists("lng", { [unowned self] (s: Double?) in
 			self.lng = s
 		})
+		try node.exists("website", { [unowned self] (s: String?) in
+			self.website = s
+		})
 	}
 	
 	func makeNode(context: Context) throws -> Node {
@@ -97,6 +103,7 @@ final class Location: Model {
 			"zip": zip,
 			"lat": lat,
 			"lng": lng,
+			"website": website,
 			"user_id": userId,
 			"created_at": createdAt,
 			"updated_at": updatedAt

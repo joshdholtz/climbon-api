@@ -38,6 +38,7 @@ struct Migration002CreateLocation: Preparation {
 			locations.text("zip", optional: true, unique: false)
 			locations.double("lat", optional: true, unique: false)
 			locations.double("lng", optional: true, unique: false)
+			locations.text("website", optional: true, unique: false)
 			locations.parent(User.self, optional: false, unique: false)
 			
 			locations.timestamp("created_at", optional: false, unique: false)
