@@ -86,12 +86,10 @@ drop.get("api/s3/presignedurl") { (request) -> ResponseRepresentable in
 	// Generate URL
 	let urlString = [
 		"https://\(s3Signer.region.host)",
-		s3Signer.region.host,
 		s3BucketName,
 		filename
 		].joined(separator: "/")
 	
-	// Genearte presigned URL
 	let presignedURL = try s3Signer.presignedURLV4(
 		httpMethod: .put,
 		urlString: urlString,
