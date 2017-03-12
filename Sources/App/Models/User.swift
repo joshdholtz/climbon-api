@@ -14,8 +14,8 @@ final class User: Model {
 	var password: String
 	var name: String?
 	
-	var createdAt: Date!
-	var updatedAt: Date!
+	var createdAt: PSQL.DateTime!
+	var updatedAt: PSQL.DateTime!
 	
 	init(username: String, password: String) {
 		self.username = username
@@ -64,12 +64,12 @@ final class User: Model {
 	}
 
 	func willCreate() {
-		createdAt = Date()
-		updatedAt = Date()
+		createdAt = PSQL.DateTime()
+		updatedAt = PSQL.DateTime()
 	}
 	
 	func willUpdate() {
-		updatedAt = Date()
+		updatedAt = PSQL.DateTime()
 	}
 }
 

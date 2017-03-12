@@ -28,7 +28,8 @@ drop.preparations = [
 	Migration001CreateUser.self,
 	Migration002CreateLocation.self,
 	Migration003CreateRoute.self,
-	Migration004CreateReview.self
+	Migration004CreateReview.self,
+	Migration005ModifyRouteAddSetDate.self
 ]
 
 // Adding database provider

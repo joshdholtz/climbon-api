@@ -16,8 +16,8 @@ final class Location: Model {
 	
 	var userId: Int
 	
-	var createdAt: Date!
-	var updatedAt: Date!
+	var createdAt: PSQL.DateTime!
+	var updatedAt: PSQL.DateTime!
 	
 	init(node: JSON, userId: Int) throws {
 		id = try node.extract("id")
@@ -111,12 +111,12 @@ final class Location: Model {
 	}
 	
 	func willCreate() {
-		createdAt = Date()
-		updatedAt = Date()
+		createdAt = PSQL.DateTime()
+		updatedAt = PSQL.DateTime()
 	}
 	
 	func willUpdate() {
-		updatedAt = Date()
+		updatedAt = PSQL.DateTime()
 	}
 }
 

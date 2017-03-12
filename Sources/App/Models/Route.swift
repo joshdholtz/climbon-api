@@ -13,8 +13,10 @@ final class Route: Model {
 	var userId: Int
 	var locationId: Int
 	
-	var createdAt: Date!
-	var updatedAt: Date!
+	var setAt: PSQL.Date?
+	
+	var createdAt: PSQL.DateTime!
+	var updatedAt: PSQL.DateTime!
 	
 	init(node: JSON, userId: Int) throws {
 		id = try node.extract("id")
@@ -23,6 +25,8 @@ final class Route: Model {
 		grade = try node.extract("grade")
 		setter = try node.extract("setter")
 		type = try node.extract("type")
+		
+		setAt = try node.extract("set_at")
 		
 		self.userId = userId
 		locationId = try node.extract("location_id")
@@ -38,6 +42,8 @@ final class Route: Model {
 		
 		userId = try node.extract("user_id")
 		locationId = try node.extract("location_id")
+		
+		setAt = try node.extract("set_at")
 		
 		createdAt = try node.extract("created_at")
 		updatedAt = try node.extract("updated_at")
@@ -73,6 +79,9 @@ final class Route: Model {
 		try node.exists("type", { [unowned self] (s: String?) in
 			self.type = s
 		})
+		try node.exists("set_at", { [unowned self] (s: String?) in
+			self.setAt = try? node.extract("set_at")
+		})
 	}
 	
 	func makeNode(context: Context) throws -> Node {
@@ -85,18 +94,19 @@ final class Route: Model {
 			"type": type,
 			"user_id": userId,
 			"location_id": locationId,
+			"set_at": setAt,
 			"created_at": createdAt,
 			"updated_at": updatedAt
 			])
 	}
 	
 	func willCreate() {
-		createdAt = Date()
-		updatedAt = Date()
+		createdAt = PSQL.DateTime()
+		updatedAt = PSQL.DateTime()
 	}
 	
 	func willUpdate() {
-		updatedAt = Date()
+		updatedAt = PSQL.DateTime()
 	}
 }
 
