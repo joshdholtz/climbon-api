@@ -3,6 +3,12 @@ import VaporPostgreSQL
 import Auth
 import Sessions
 import Cache
+import HTTP
+
+import VaporS3Signer
+import S3SignerAWS
+
+import Foundation
 
 let drop = Droplet()
 
@@ -14,6 +20,12 @@ let configuration = CORSConfiguration(allowedOrigin: .originBased,
                                       cacheExpiration: 600,
                                       exposedHeaders: ["Cache-Control", "Content-Language", ""])
 drop.middleware.insert(CORSMiddleware(configuration: configuration), at: 0)
+
+// Enable S3 Signer
+try drop.addProvider(VaporS3Signer.Provider.self)
+guard let s3BucketName = drop.config["vapor-S3Signer", "bucket"]?.string else {
+	throw Provider.S3ProviderError.config("No 'bucket' key in vapor-S3Signer.json config file.")
+}
 
 // Adding preparations for models
 //drop.preparations += User.self
@@ -55,5 +67,43 @@ let sessionsControllers = SessionController()
 drop.post("api/session", handler: sessionsControllers.login)
 drop.get("api/session", handler: sessionsControllers.current)
 drop.delete("api/session", handler: sessionsControllers.logout)
+
+drop.get("api/s3/presignedurl") { (request) -> ResponseRepresentable in
+	
+	// Must be logged in
+	let (_, userId) = try request.protected()
+	
+	// Make sure signer provider enabled
+	guard let s3Signer = drop.s3Signer else {
+		throw Abort.serverError
+	}
+	
+	// Generate filename
+	let filename = [UUID.init().uuidString, request.query?["name"]?.string]
+		.flatMap({$0})
+		.joined(separator: "_")
+	
+	// Generate URL
+	let urlString = [
+		"https://\(s3Signer.region.host)",
+		s3Signer.region.host,
+		s3BucketName,
+		filename
+		].joined(separator: "/")
+	
+	// Genearte presigned URL
+	let presignedURL = try s3Signer.presignedURLV4(
+		httpMethod: .put,
+		urlString: urlString,
+		expiration: TimeFromNow.oneHour,
+		headers: [:]
+	)
+	
+	guard let url = URL(string: presignedURL.urlString) else {
+			throw Abort.serverError
+	}
+
+	return try JSON(node: ["url": presignedURL.urlString])
+}
 
 drop.run()
