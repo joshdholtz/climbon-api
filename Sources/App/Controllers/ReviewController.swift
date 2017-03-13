@@ -3,7 +3,7 @@ import HTTP
 
 final class ReviewController: ResourceRepresentable {
 	func index(request: Request) throws -> ResponseRepresentable {
-		return try Review.all().makeNode().converted(to: JSON.self)
+		return try Review.all().makeJSON().converted(to: JSON.self)
 	}
 	
 	func create(request: Request) throws -> ResponseRepresentable {

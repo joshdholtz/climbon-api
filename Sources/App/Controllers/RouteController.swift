@@ -5,7 +5,7 @@ import FluentPostgreSQL
 
 final class RouteController: ResourceRepresentable {
     func index(request: Request) throws -> ResponseRepresentable {
-        return try Route.all().makeNode().converted(to: JSON.self)
+        return try Route.all().makeJSON().converted(to: JSON.self)
     }
 
     func create(request: Request) throws -> ResponseRepresentable {

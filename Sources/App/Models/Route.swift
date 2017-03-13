@@ -108,7 +108,6 @@ final class Route: Model {
 	}
 	
 	func makeNode(context: Context) throws -> Node {
-		print("Images: \(images)")
 		return try Node(node: [
 			"id": id,
 			"name": name,
