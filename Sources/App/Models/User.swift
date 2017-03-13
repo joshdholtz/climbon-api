@@ -14,8 +14,8 @@ final class User: Model {
 	var password: String
 	var name: String?
 	
-	var createdAt: PSQL.DateTime!
-	var updatedAt: PSQL.DateTime!
+	var createdAt: PG.DateTime!
+	var updatedAt: PG.DateTime!
 	
 	init(username: String, password: String) {
 		self.username = username
@@ -36,6 +36,8 @@ final class User: Model {
 		guard let node = node else {
 			return
 		}
+		
+		
 		
 		try node.exists("name", { [unowned self] (s: String?) in
 			self.name = s
@@ -64,12 +66,12 @@ final class User: Model {
 	}
 
 	func willCreate() {
-		createdAt = PSQL.DateTime()
-		updatedAt = PSQL.DateTime()
+		createdAt = PG.DateTime()
+		updatedAt = PG.DateTime()
 	}
 	
 	func willUpdate() {
-		updatedAt = PSQL.DateTime()
+		updatedAt = PG.DateTime()
 	}
 }
 

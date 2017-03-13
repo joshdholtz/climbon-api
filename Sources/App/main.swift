@@ -41,7 +41,8 @@ drop.preparations = [
 	Migration002CreateLocation.self,
 	Migration003CreateRoute.self,
 	Migration004CreateReview.self,
-	Migration005ModifyRouteAddSetDate.self
+	Migration005ModifyRouteAddSetDate.self,
+	Migration006ModifyRouteAddImages.self
 ]
 
 // Adding database provider
@@ -101,7 +102,9 @@ drop.get("api/s3/presignedurl") { (request) -> ResponseRepresentable in
 			throw Abort.serverError
 	}
 
-	return try JSON(node: ["url": presignedURL.urlString])
+	return try JSON(node: [
+		"presigned_url": presignedURL.urlString, "url": urlString
+		])
 }
 
 drop.run()

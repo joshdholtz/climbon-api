@@ -12,8 +12,8 @@ final class Review: Model {
 	var userId: Int
 	var routeId: Int
 	
-	var createdAt: PSQL.DateTime!
-	var updatedAt: PSQL.DateTime!
+	var createdAt: PG.DateTime!
+	var updatedAt: PG.DateTime!
 	
 	init(node: JSON, userId: Int) throws {
 		id = try node.extract("id")
@@ -88,12 +88,12 @@ final class Review: Model {
 	}
 	
 	func willCreate() {
-		createdAt = PSQL.DateTime()
-		updatedAt = PSQL.DateTime()
+		createdAt = PG.DateTime()
+		updatedAt = PG.DateTime()
 	}
 	
 	func willUpdate() {
-		updatedAt = PSQL.DateTime()
+		updatedAt = PG.DateTime()
 	}
 }
 

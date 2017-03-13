@@ -2,6 +2,8 @@ import Vapor
 import Fluent
 import Foundation
 
+import FluentPostgreSQL
+
 final class Route: Model {
 	var id: Node?
 	var name: String?
@@ -13,10 +15,12 @@ final class Route: Model {
 	var userId: Int
 	var locationId: Int
 	
-	var setAt: PSQL.Date?
+	var setAt: PG.Date?
 	
-	var createdAt: PSQL.DateTime!
-	var updatedAt: PSQL.DateTime!
+	var images: PG.TextArray?
+	
+	var createdAt: PG.DateTime!
+	var updatedAt: PG.DateTime!
 	
 	init(node: JSON, userId: Int) throws {
 		id = try node.extract("id")
@@ -27,6 +31,10 @@ final class Route: Model {
 		type = try node.extract("type")
 		
 		setAt = try node.extract("set_at")
+		
+		if let imagesJSON: [String] = try node.extract("images") {
+			images = PG.TextArray(array: imagesJSON)
+		}
 		
 		self.userId = userId
 		locationId = try node.extract("location_id")
@@ -44,6 +52,14 @@ final class Route: Model {
 		locationId = try node.extract("location_id")
 		
 		setAt = try node.extract("set_at")
+		
+		// TODO: Replace thi swith something less fugly
+		if let id = id?.int,
+			let postgres = Route.database?.driver as? PostgreSQLDriver {
+			let result = try postgres.raw("select array_to_json(images) as images from routes where id = \(id);")
+			images = try result.nodeArray?.first?.extract("images")
+		}
+//		images  = try node.extract("images")
 		
 		createdAt = try node.extract("created_at")
 		updatedAt = try node.extract("updated_at")
@@ -82,9 +98,17 @@ final class Route: Model {
 		try node.exists("set_at", { [unowned self] (s: String?) in
 			self.setAt = try? node.extract("set_at")
 		})
+		try node.exists("images", { [unowned self] (ss: [String]?) in
+			if let imagesJSON = ss {
+				self.images = PG.TextArray(array: imagesJSON)
+			} else {
+				self.images = nil
+			}
+		})
 	}
 	
 	func makeNode(context: Context) throws -> Node {
+		print("Images: \(images)")
 		return try Node(node: [
 			"id": id,
 			"name": name,
@@ -95,18 +119,36 @@ final class Route: Model {
 			"user_id": userId,
 			"location_id": locationId,
 			"set_at": setAt,
+			"images": images,
+			"created_at": createdAt,
+			"updated_at": updatedAt
+			])
+	}
+	
+	func makeJSON() throws -> JSON {
+		return try JSON(node: [
+			"id": id,
+			"name": name,
+			"info": info,
+			"grade": grade,
+			"setter": setter,
+			"type": type,
+			"user_id": userId,
+			"location_id": locationId,
+			"set_at": setAt,
+			"images": JSON(node: images?.array ?? []),
 			"created_at": createdAt,
 			"updated_at": updatedAt
 			])
 	}
 	
 	func willCreate() {
-		createdAt = PSQL.DateTime()
-		updatedAt = PSQL.DateTime()
+		createdAt = PG.DateTime()
+		updatedAt = PG.DateTime()
 	}
 	
 	func willUpdate() {
-		updatedAt = PSQL.DateTime()
+		updatedAt = PG.DateTime()
 	}
 }
 

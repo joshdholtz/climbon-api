@@ -27,11 +27,19 @@ extension Schema.Creator {
 		) {
 		self.custom(name, type: "TEXT", optional: optional, unique: unique, default: value)
 	}
+	
+	func textArray(_ name: String,
+	          optional: Bool = false,
+	          unique: Bool = false,
+	          default value: NodeRepresentable? = nil
+		) {
+		self.custom(name, type: "TEXT[]", optional: optional, unique: unique, default: value)
+	}
 }
 
-// PSQL.Date and PSQL.DateTime
+// PG.Date and PG.DateTime
 
-struct PSQL {
+struct PG {
 	struct Date {
 		let date: Foundation.Date
 		
@@ -69,26 +77,49 @@ struct PSQL {
 			return df
 		}()
 	}
+	
+	struct TextArray {
+		let array: [String]
+		
+		init() {
+			self.array = []
+		}
+		
+		init(array: [String]?) {
+			self.array = array ?? []
+		}
+		
+		init(string: String) {
+			guard let data = string.data(using: .utf8),
+				let ughJson = try? JSONSerialization.jsonObject(with: data, options: []) as? [String],
+				let json = ughJson else {
+				self.array = []
+				return
+			}
+			
+			self.array = json
+		}
+	}
 }
 
-// MARK: PSQL.Date
+// MARK: PG.Date
 
-extension PSQL.Date {
+extension PG.Date {
 	var psql_string: String {
-		return PSQL.Date.dateFormatter.string(from: self.date)
+		return PG.Date.dateFormatter.string(from: self.date)
 	}
 }
 
 extension String {
-	var psql_date: PSQL.Date? {
-		guard let date = PSQL.Date.dateFormatter.date(from: self) else {
+	var psql_date: PG.Date? {
+		guard let date = PG.Date.dateFormatter.date(from: self) else {
 			return nil
 		}
-		return PSQL.Date(date: date)
+		return PG.Date(date: date)
 	}
 }
 
-extension PSQL.Date: NodeConvertible {
+extension PG.Date: NodeConvertible {
 	public func makeNode(context: Context = EmptyNode) -> Node {
 		let string = self.psql_string
 		return .string(string)
@@ -103,33 +134,52 @@ extension PSQL.Date: NodeConvertible {
 }
 
 
-// MARK: PSQL.DateTime
+// MARK: PG.DateTime
 
-extension PSQL.DateTime {
-	var psql_string: String {
-		return PSQL.DateTime.dateFormatter.string(from: self.date)
+extension PG.DateTime {
+	var pq_string: String {
+		return PG.DateTime.dateFormatter.string(from: self.date)
 	}
 }
 
 extension String {
-	var psql_datetime: PSQL.DateTime? {
-		guard let date = PSQL.DateTime.dateFormatter.date(from: self) else {
+	var pq_datetime: PG.DateTime? {
+		guard let date = PG.DateTime.dateFormatter.date(from: self) else {
 			return nil
 		}
-		return PSQL.DateTime(date: date)
+		return PG.DateTime(date: date)
 	}
 }
 
-extension PSQL.DateTime: NodeConvertible {
+extension PG.DateTime: NodeConvertible {
 	public func makeNode(context: Context = EmptyNode) -> Node {
-		let string = self.psql_string
+		let string = self.pq_string
 		return .string(string)
 	}
 	
 	public init(node: Node, in context: Context) throws {
-		guard let string = node.string, let date = string.psql_datetime else {
+		guard let string = node.string, let date = string.pq_datetime else {
 			throw NodeError.unableToConvert(node: node, expected: "\(String.self)")
 		}
 		self = date
+	}
+}
+
+// MARK: PG.TextArray
+
+extension PG.TextArray: NodeConvertible {
+	public func makeNode(context: Context = EmptyNode) -> Node {
+		// TODO: This is super unsafe and probably needs to escape quotes
+		let string = array.map { (string) -> String in
+			return "\"\(string)\""
+		}.joined(separator: ",")
+		return .string("{\(string)}")
+	}
+	
+	public init(node: Node, in context: Context) throws {
+		guard let string = node.string else {
+			throw NodeError.unableToConvert(node: node, expected: "\(String.self)")
+		}
+		self = PG.TextArray(string: string)
 	}
 }

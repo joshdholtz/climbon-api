@@ -28,6 +28,18 @@ extension NodeBacked {
 		
 		return
 	}
+	
+	func exists<T: NodeInitializable>(_ key: String, _ exists: ([T]?) -> ()) throws {
+		guard let _ = self[key] else { return }
+		
+		if let value: [T] = try extract(key) {
+			exists(value)
+		} else {
+			exists(nil)
+		}
+		
+		return
+	}
 }
 
 //private let currentUserIDKey = "current_user_id"

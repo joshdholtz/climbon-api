@@ -96,8 +96,20 @@ struct Migration004CreateReview: Preparation {
 
 struct Migration005ModifyRouteAddSetDate: Preparation {
 	static func prepare(_ database: Database) throws {
-		try database.modify("routes") { reviews in
-			reviews.date("set_at", optional: true, unique: false)
+		try database.modify("routes") { routes in
+			routes.date("set_at", optional: true, unique: false)
+		}
+	}
+	
+	static func revert(_ database: Database) throws {
+		
+	}
+}
+
+struct Migration006ModifyRouteAddImages: Preparation {
+	static func prepare(_ database: Database) throws {
+		try database.modify("routes") { routes in
+			routes.textArray("images", optional: true, unique: false)
 		}
 	}
 	
